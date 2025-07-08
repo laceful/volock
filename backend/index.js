@@ -3,6 +3,8 @@ const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const adminUser = process.env.ADMIN_USERNAME;
+const adminPass = process.env.ADMIN_PASSWORD;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +17,28 @@ let keys = require("./keys.json");
 // yes bro lets save to some fuckass json LETS GO
 function saveKeys() {
   fs.writeFileSync("./backend/keys.json", JSON.stringify(keys, null, 2));
+}
+
+// woopsies, forgot to make this for the frontend
+function authMiddleware(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith("Basic ")) {
+    res.setHeader("WWW-Authenticate", "Basic realm='VoLock'");
+    return res.status(401).send("Authentication required.");
+  }
+
+  // GET AUTH
+  const [user, pass] = Buffer.from(auth.split(" ")[1], "base64")
+    .toString()
+    .split(":");
+
+  // HI IS THIS NEXT ???
+  if (user === adminUser && pass === adminPass) {
+    return next();
+  }
+
+  // send them an error with a log
+  res.status(403).send("Invalid credentials.");
 }
 
 // verify this bitch
