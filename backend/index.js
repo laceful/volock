@@ -3,6 +3,7 @@ const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+
 const adminUser = process.env.ADMIN_USERNAME;
 const adminPass = process.env.ADMIN_PASSWORD;
 
@@ -62,18 +63,19 @@ app.post("/api/verify", (req, res) => {
   if (!found.ip) found.ip = ip;
   found.used = true;
 
-  app.get("/api/keys", authMiddleware, (req, res) => {
-    res.json(keys);
-  });
-
-  app.put("/backend/keys.json", authMiddleware, (req, res) => {
-    keys = req.body;
-    saveKeys();
-    res.send("Updated.");
-  });
-
-  
+  saveKeys();
   res.json({ success: true });
+});
+
+// here you go frontend bros
+app.get("/api/keys", authMiddleware, (req, res) => {
+  res.json(keys);
+});
+
+app.put("/backend/keys.json", authMiddleware, (req, res) => {
+  keys = req.body;
+  saveKeys();
+  res.send("Updated.");
 });
 
 // tell the console we're online
