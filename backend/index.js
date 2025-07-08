@@ -62,7 +62,17 @@ app.post("/api/verify", (req, res) => {
   if (!found.ip) found.ip = ip;
   found.used = true;
 
-  saveKeys();
+  app.get("/api/keys", authMiddleware, (req, res) => {
+    res.json(keys);
+  });
+
+  app.put("/backend/keys.json", authMiddleware, (req, res) => {
+    keys = req.body;
+    saveKeys();
+    res.send("Updated.");
+  });
+
+  
   res.json({ success: true });
 });
 
